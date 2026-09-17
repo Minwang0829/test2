@@ -50,21 +50,17 @@ git push -u origin main
 ```
 
 3. 打开仓库 **Settings → Pages**
-   - Source：Deploy from a branch
-   - Branch：`main` / `/ (root)`
-   - Save
+   - Build and deployment → Source：选 **Deploy from a branch**
+   - Branch：`main` ，文件夹：`/ (root)`
+   - Save  
+   （不要用 GitHub Actions，除非你已会配；分支发布最稳）
 
-4. 几分钟后得到公网地址，例如：
+4. 一两分钟后打开：
 
-`https://你的用户名.github.io/ai-survey/`
+`https://minwang0829.github.io/test1/`  
+主持页：`https://minwang0829.github.io/test1/admin.html`
 
-5. 回到 `js/backend-config.js`，填写：
-
-```js
-publicBaseUrl: "https://你的用户名.github.io/ai-survey"
-```
-
-再 `git add` / `commit` / `push` 一次。
+（本仓库的 `publicBaseUrl` 已写成上述地址，一般不用再改。）
 
 ---
 
@@ -72,8 +68,8 @@ publicBaseUrl: "https://你的用户名.github.io/ai-survey"
 
 | 角色 | 打开 |
 | --- | --- |
-| 主持投影二维码 | `https://你的用户名.github.io/ai-survey/admin.html` |
-| 手机扫码填写 | 二维码指向的 `index.html`（外网可开） |
+| 主持投影二维码 | https://minwang0829.github.io/test1/admin.html |
+| 手机扫码填写 | https://minwang0829.github.io/test1/ |
 | 看结果 | 主持页右侧表格（约每 4 秒刷新）或 Google 表格 |
 | 导出 | 主持页「导出 CSV」 |
 
