@@ -31,5 +31,5 @@ window.SURVEY_BACKEND = {
    * 例：https://你的用户名.github.io/ai-survey/
    * 留空则用当前浏览器地址
    */
-  publicBaseUrl: "",
+  publicBaseUrl: "https://minwang0829.github.io/test1",
 };
