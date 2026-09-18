@@ -1,18 +1,31 @@
-/** 云端提交 / 拉取（Apps Script / Formspree / 本机） */
+/** 云端提交 / 拉取（Supabase / Formspree / 本机）—— 不依赖 Google */
 window.SurveyAPI = (function () {
   function cfg() {
     return window.SURVEY_BACKEND || { mode: "none" };
   }
 
   function endpoint() {
-    return String(cfg().endpoint || "").trim();
+    return String(cfg().endpoint || "").trim().replace(/\/$/, "");
+  }
+
+  function tableName() {
+    return String(cfg().table || "survey_responses").trim() || "survey_responses";
+  }
+
+  function anonKey() {
+    return String(cfg().anonKey || "").trim();
   }
 
   function isConfigured() {
     const mode = cfg().mode;
     if (mode === "local" || mode === "none") return true;
     const ep = endpoint();
-    return ep && !ep.includes("PASTE_YOUR_");
+    if (!ep || ep.includes("PASTE_YOUR_")) return false;
+    if (mode === "supabase") {
+      const key = anonKey();
+      return key && !key.includes("PASTE_YOUR_");
+    }
+    return true;
   }
 
   function publicSurveyUrl() {
@@ -27,66 +40,25 @@ window.SurveyAPI = (function () {
     return new URL("admin.html", window.location.href).href;
   }
 
-  function jsonp(url) {
-    return new Promise((resolve, reject) => {
-      const cb = "_survey_cb_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
-      const timer = setTimeout(() => {
-        cleanup();
-        reject(new Error("timeout"));
-      }, 20000);
-
-      function cleanup() {
-        clearTimeout(timer);
-        delete window[cb];
-        if (script && script.parentNode) script.parentNode.removeChild(script);
-      }
-
-      window[cb] = function (data) {
-        cleanup();
-        resolve(data);
-      };
-
-      const script = document.createElement("script");
-      const join = url.indexOf("?") >= 0 ? "&" : "?";
-      script.src = url + join + "callback=" + encodeURIComponent(cb);
-      script.onerror = function () {
-        cleanup();
-        reject(new Error("script_error"));
-      };
-      document.body.appendChild(script);
-    });
+  function supabaseHeaders(extra) {
+    const key = anonKey();
+    return Object.assign(
+      {
+        apikey: key,
+        Authorization: "Bearer " + key,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      extra || {}
+    );
   }
 
-  function postViaHiddenForm(url, record) {
-    return new Promise((resolve) => {
-      const name = "gas_iframe_" + Date.now();
-      const iframe = document.createElement("iframe");
-      iframe.name = name;
-      iframe.style.display = "none";
-      document.body.appendChild(iframe);
-
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = url;
-      form.target = name;
-      form.style.display = "none";
-
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = "payload";
-      input.value = JSON.stringify(record);
-      form.appendChild(input);
-      document.body.appendChild(form);
-      form.submit();
-
-      setTimeout(() => {
-        try {
-          form.remove();
-          iframe.remove();
-        } catch (_) {}
-        resolve(true);
-      }, 1800);
-    });
+  function rowToRecord(row) {
+    return {
+      id: row.id,
+      submittedAt: row.submitted_at || row.submittedAt,
+      answers: row.answers || {},
+    };
   }
 
   async function submit(record) {
@@ -126,11 +98,23 @@ window.SurveyAPI = (function () {
       }
     }
 
-    if (mode === "appscript") {
+    if (mode === "supabase") {
       if (!isConfigured()) return false;
       try {
-        await postViaHiddenForm(endpoint(), record);
-        return true;
+        const url = endpoint() + "/rest/v1/" + encodeURIComponent(tableName());
+        const res = await fetch(url, {
+          method: "POST",
+          headers: supabaseHeaders({
+            Prefer: "resolution=ignore-duplicates,return=minimal",
+          }),
+          body: JSON.stringify({
+            id: record.id,
+            submitted_at: record.submittedAt,
+            answers: record.answers,
+          }),
+        });
+        // 201 created, 200 ok, 409 duplicate treated as success
+        return res.ok || res.status === 409;
       } catch {
         return false;
       }
@@ -149,17 +133,20 @@ window.SurveyAPI = (function () {
       return Array.isArray(data.responses) ? data.responses : [];
     }
 
-    if (mode === "appscript") {
+    if (mode === "supabase") {
       if (!isConfigured()) throw new Error("not_configured");
-      const token = encodeURIComponent(cfg().adminToken || "");
       const url =
         endpoint() +
-        (endpoint().indexOf("?") >= 0 ? "&" : "?") +
-        "action=list&token=" +
-        token;
-      const data = await jsonp(url);
-      if (data && data.error) throw new Error(data.error);
-      return Array.isArray(data.responses) ? data.responses : [];
+        "/rest/v1/" +
+        encodeURIComponent(tableName()) +
+        "?select=id,submitted_at,answers&order=submitted_at.asc";
+      const res = await fetch(url, {
+        headers: supabaseHeaders({ Accept: "application/json" }),
+        cache: "no-store",
+      });
+      if (!res.ok) throw new Error("supabase_list_fail");
+      const rows = await res.json();
+      return Array.isArray(rows) ? rows.map(rowToRecord) : [];
     }
 
     throw new Error("unsupported_list");
@@ -173,16 +160,19 @@ window.SurveyAPI = (function () {
       return res.ok;
     }
 
-    if (mode === "appscript") {
+    if (mode === "supabase") {
       if (!isConfigured()) throw new Error("not_configured");
-      const token = encodeURIComponent(cfg().adminToken || "");
+      // PostgREST: DELETE with a filter that matches all rows
       const url =
         endpoint() +
-        (endpoint().indexOf("?") >= 0 ? "&" : "?") +
-        "action=clear&token=" +
-        token;
-      const data = await jsonp(url);
-      return Boolean(data && data.ok);
+        "/rest/v1/" +
+        encodeURIComponent(tableName()) +
+        "?id=neq.";
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: supabaseHeaders(),
+      });
+      return res.ok;
     }
 
     return false;

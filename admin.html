@@ -33,13 +33,13 @@
             <button type="button" class="btn btn-secondary" id="btn-copy-url">复制填写链接</button>
           </div>
           <ol class="steps">
-            <li>按 <code>PUBLISH.md</code> 配置 Google 表格后端，并填好 <code>js/backend-config.js</code></li>
-            <li>推送到 GitHub，打开 Pages；把公网地址写入 <code>publicBaseUrl</code></li>
-            <li>打开本页投影二维码；手机外网扫码即可</li>
-            <li>右侧自动刷新答卷，会后导出 CSV</li>
+            <li>按 <code>PUBLISH.md</code> 配置 <strong>Supabase</strong>（不用 Google），填好 <code>js/backend-config.js</code></li>
+            <li>开启 GitHub Pages（branch：main / root）</li>
+            <li>打开本页投影二维码；手机外网扫码填写</li>
+            <li>右侧普通表格自动刷新；会后导出 CSV（Excel 可开）</li>
           </ol>
           <p class="hint" id="config-hint" hidden style="margin-top:0.75rem;color:#b45309">
-            尚未配置云端 endpoint。请先完成 PUBLISH.md 中的后端设置，否则外网提交无法汇总。
+            尚未配置云端 endpoint / anonKey。请先完成 PUBLISH.md，否则外网提交无法进表格。
           </p>
         </section>
 

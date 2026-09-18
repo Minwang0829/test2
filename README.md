@@ -1,26 +1,18 @@
-# AI 调研问卷（GitHub Pages + 云端答卷）
+# AI 调研问卷（GitHub Pages + 普通表格）
 
-外网扫码填写，主持页实时看结果并导出 CSV。
+外网扫码填写；主持页用**网页表格**看结果；导出 CSV 可用 **Excel / WPS** 打开。  
+**不依赖 Google。**
 
-## 快速开始（发布）
+完整发布步骤见 **[PUBLISH.md](PUBLISH.md)**。
 
-完整步骤见 **[PUBLISH.md](PUBLISH.md)**（必读）：
+## 地址（本仓库）
 
-1. 配置 Google 表格 + Apps Script，填入 [`js/backend-config.js`](js/backend-config.js)
-2. 推送到 GitHub，开启 Pages
-3. 填写 `publicBaseUrl`，打开 `admin.html` 投影二维码
+- 填写：https://minwang0829.github.io/test1/  
+- 主持：https://minwang0829.github.io/test1/admin.html  
 
-## 本地预览（可选）
+（需先在仓库 Settings → Pages 开启 `main` / root。）
 
-- 直接用浏览器打开 `index.html` / `admin.html`
-- 或普通用户运行 `启动问卷.bat`（本机预览，无需管理员）
+## 配置
 
-## 主要文件
-
-| 文件 | 说明 |
-| --- | --- |
-| `index.html` | 手机填写页 |
-| `admin.html` | 主持页（二维码 + 结果） |
-| `js/backend-config.js` | **发布前必改**：云端地址与公网 URL |
-| `scripts/google-apps-script.js` | 粘贴到 Google Apps Script |
-| `PUBLISH.md` | 外网发布教程 |
+编辑 [`js/backend-config.js`](js/backend-config.js)：填入 Supabase Project URL 与 anon key。  
+建表 SQL：[`scripts/supabase-setup.sql`](scripts/supabase-setup.sql)

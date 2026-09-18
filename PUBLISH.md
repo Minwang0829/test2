@@ -1,66 +1,45 @@
-# 发布到 GitHub（外网扫码 + 主持看结果）
+# 发布到 GitHub（外网扫码 + 普通表格看结果）
 
-目标：
+**不使用 Google。** 答卷存在 Supabase，主持页用网页表格展示，导出 CSV 后可用 Excel / WPS 打开。
 
-- 手机用**外网**扫二维码打开问卷
-- 你在主持页 / Google 表格里**看到答卷**并导出 CSV
-
-全程**不需要管理员权限**。
+全程不需要电脑管理员权限。
 
 ---
 
-## 一、接好云端答卷库（必做，约 5 分钟）
+## 一、接好答卷库（Supabase，约 5 分钟）
 
-GitHub Pages 只能托管网页，不能存答卷，所以用 **Google 表格 + Apps Script**。
-
-1. 新建一个 [Google 表格](https://sheets.google.com)
-2. 菜单：**扩展程序 → Apps Script**
-3. 删除编辑器里的默认代码，粘贴本仓库 [`scripts/google-apps-script.js`](scripts/google-apps-script.js) 全部内容
-4. 把脚本里的 `ADMIN_TOKEN` 改成一串只有你知道的口令（例如 `BayerMeet2026`）
-5. 保存 → **部署 → 新建部署 → 类型选「网页应用」**
-   - 执行身份：**我**
-   - 谁可以访问：**任何人**
-6. 授权后，复制「网页应用」URL（形如 `https://script.google.com/macros/s/xxxx/exec`）
-
-7. 打开本仓库 [`js/backend-config.js`](js/backend-config.js)，改成：
+1. 打开 [https://supabase.com](https://supabase.com) 注册/登录（可用 GitHub 账号）
+2. **New project** → 记住数据库密码 → 等项目创建好
+3. 左侧 **SQL → New query**，粘贴本仓库 [`scripts/supabase-setup.sql`](scripts/supabase-setup.sql) 全部内容 → **Run**
+4. 左侧 **Project Settings → API**，复制：
+   - **Project URL**
+   - **anon public** key
+5. 打开本仓库 [`js/backend-config.js`](js/backend-config.js)，改成：
 
 ```js
-mode: "appscript",
-endpoint: "粘贴你的网页应用URL",
-adminToken: "与脚本里相同的口令",
-publicBaseUrl: "", // 下一步 Pages 开通后再填
+mode: "supabase",
+endpoint: "https://xxxxx.supabase.co",   // Project URL
+anonKey: "eyJhbGciOi....",              // anon public key
+table: "survey_responses",
+publicBaseUrl: "https://minwang0829.github.io/test1",
 ```
 
-> 备选：若更习惯邮箱收答卷，可把 `mode` 改成 `"formspree"`，`endpoint` 填 Formspree 表单地址；结果在 Formspree 网站查看。
+6. 保存后 `git add` / `commit` / `push`
+
+> 备选：若只用邮箱收结果，可把 `mode` 改成 `"formspree"`，`endpoint` 填 Formspree 地址（主持页网页表格不会自动汇总）。
 
 ---
 
-## 二、推到 GitHub 并打开 Pages
+## 二、打开 GitHub Pages
 
-1. 在 GitHub 新建空仓库（例如 `ai-survey`），不要勾选自动加 README
-2. 本机执行：
+仓库已推送到 [Minwang0829/test1](https://github.com/Minwang0829/test1)。
 
-```bash
-git init
-git add .
-git commit -m "Add AI survey with GitHub Pages and cloud responses"
-git branch -M main
-git remote add origin https://github.com/你的用户名/ai-survey.git
-git push -u origin main
-```
-
-3. 打开仓库 **Settings → Pages**
-   - Build and deployment → Source：选 **Deploy from a branch**
-   - Branch：`main` ，文件夹：`/ (root)`
-   - Save  
-   （不要用 GitHub Actions，除非你已会配；分支发布最稳）
-
-4. 一两分钟后打开：
-
-`https://minwang0829.github.io/test1/`  
-主持页：`https://minwang0829.github.io/test1/admin.html`
-
-（本仓库的 `publicBaseUrl` 已写成上述地址，一般不用再改。）
+1. 打开 https://github.com/Minwang0829/test1/settings/pages  
+2. Source：**Deploy from a branch**  
+3. Branch：`main` ，文件夹：`/ (root)` → **Save**  
+4. 一两分钟后访问：
+   - 填写：https://minwang0829.github.io/test1/  
+   - 主持：https://minwang0829.github.io/test1/admin.html  
 
 ---
 
@@ -70,15 +49,15 @@ git push -u origin main
 | --- | --- |
 | 主持投影二维码 | https://minwang0829.github.io/test1/admin.html |
 | 手机扫码填写 | https://minwang0829.github.io/test1/ |
-| 看结果 | 主持页右侧表格（约每 4 秒刷新）或 Google 表格 |
-| 导出 | 主持页「导出 CSV」 |
+| 看结果 | 主持页右侧**普通表格**（自动刷新） |
+| 导出 | 点「导出 CSV」，用 Excel / WPS 打开 |
 
 ---
 
 ## 四、自检清单
 
-- [ ] `endpoint` 已不是 `PASTE_YOUR_...`
-- [ ] `adminToken` 与 Apps Script 一致
-- [ ] Pages 网站用手机流量能打开
-- [ ] 自己先填一份，主持页 / 表格能看到
-- [ ] `publicBaseUrl` 已填，二维码不是 localhost
+- [ ] Supabase SQL 已成功执行
+- [ ] `endpoint` / `anonKey` 已填，不是 `PASTE_YOUR_...`
+- [ ] Pages 用手机流量能打开
+- [ ] 自己先填一份，主持页表格能看到新行
+- [ ] 导出 CSV 能用 Excel 打开

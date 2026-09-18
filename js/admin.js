@@ -172,7 +172,7 @@
     try {
       const list = await window.SurveyAPI.listResponses();
       cache = list;
-      setMode(true, mode === "appscript" ? "云端已连接" : "实时汇总中");
+      setMode(true, mode === "supabase" ? "云端表格已连接" : "实时汇总中");
       renderTable(cache);
       return true;
     } catch {

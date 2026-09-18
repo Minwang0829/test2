@@ -1,35 +1,33 @@
 /**
- * 云端答卷后端 —— 发布到 GitHub Pages 前请按 PUBLISH.md 配好 endpoint
+ * 云端答卷后端（不用 Google）
  *
- * 推荐：Google 表格 + Apps Script（主持页可实时看结果、导出 CSV）
- * 备选：Formspree（结果在 Formspree 控制台 / 邮箱）
+ * 推荐：Supabase 免费库 → 主持页普通表格看结果 → 导出 CSV 用 Excel 打开
+ * 备选：Formspree（邮箱/控制台看结果）
+ *
+ * 配置步骤见 PUBLISH.md
  */
 window.SURVEY_BACKEND = {
   /**
-   * "appscript" | "formspree" | "local" | "none"
-   * - appscript：外网提交 + admin 实时汇总（推荐）
-   * - formspree：外网提交，结果在 Formspree 网站查看
-   * - local：仅本机 node server.js（不开外网）
-   * - none：只保存在填写者手机浏览器
+   * "supabase" | "formspree" | "local" | "none"
    */
-  mode: "appscript",
+  mode: "supabase",
 
   /**
-   * Apps Script「网页应用」URL，或 Formspree 的 https://formspree.io/f/xxxx
-   * 发布前务必改成你自己的地址！
+   * Supabase：Project URL，形如 https://xxxxx.supabase.co
+   * Formspree：https://formspree.io/f/xxxx
    */
-  endpoint: "PASTE_YOUR_APPS_SCRIPT_OR_FORMSPREE_URL_HERE",
+  endpoint: "PASTE_YOUR_SUPABASE_URL_HERE",
 
   /**
-   * 与 scripts/google-apps-script.js 里 ADMIN_TOKEN 保持一致
-   * 用于主持页拉取/清空答卷（不要发到公开群里）
+   * Supabase → Project Settings → API → anon public key
    */
-  adminToken: "change-this-admin-token",
+  anonKey: "PASTE_YOUR_SUPABASE_ANON_KEY_HERE",
+
+  /** 数据表名（与 scripts/supabase-setup.sql 一致） */
+  table: "survey_responses",
 
   /**
-   * 发布到 GitHub Pages 后的网站根地址（用于二维码）
-   * 例：https://你的用户名.github.io/ai-survey/
-   * 留空则用当前浏览器地址
+   * GitHub Pages 根地址（二维码用）
    */
   publicBaseUrl: "https://minwang0829.github.io/test1",
 };
