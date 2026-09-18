@@ -16,12 +16,12 @@ window.SURVEY_BACKEND = {
    * Supabase：Project URL，形如 https://xxxxx.supabase.co
    * Formspree：https://formspree.io/f/xxxx
    */
-  endpoint: "PASTE_YOUR_SUPABASE_URL_HERE",
+  endpoint: "https://xayycftjxhvpmcuwaano.supabase.co",
 
   /**
-   * Supabase → Project Settings → API → anon public key
+   * Supabase → Project Settings → API → anon / publishable key
    */
-  anonKey: "PASTE_YOUR_SUPABASE_ANON_KEY_HERE",
+  anonKey: "sb_publishable_vs-LlwfjfolSjDF3Cp3Zcg_bjrzTWyZ",
 
   /** 数据表名（与 scripts/supabase-setup.sql 一致） */
   table: "survey_responses",
