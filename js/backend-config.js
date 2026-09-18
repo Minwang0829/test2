@@ -16,18 +16,18 @@ window.SURVEY_BACKEND = {
    * Supabase：Project URL，形如 https://xxxxx.supabase.co
    * Formspree：https://formspree.io/f/xxxx
    */
-  endpoint: "https://xayycftjxhvpmcuwaano.supabase.co",
+  endpoint: "https://jqrwlzccoiykyrokxarq.supabase.co",
 
   /**
    * Supabase → Project Settings → API → anon / publishable key
    */
-  anonKey: "sb_publishable_vs-LlwfjfolSjDF3Cp3Zcg_bjrzTWyZ",
+  anonKey: "sb_publishable_zZQi2ECVVWgj42k9ZxR0yQ_ZMWtjOPi",
 
   /** 数据表名（与 scripts/supabase-setup.sql 一致） */
   table: "survey_responses",
 
   /**
-   * GitHub Pages 根地址（二维码用）
+   * GitHub Pages 根地址（二维码用），形如 https://<user>.github.io/<repo>
    */
-  publicBaseUrl: "https://minwang0829.github.io/test1",
+  publicBaseUrl: "https://minwang0829.github.io/test2",
 };
